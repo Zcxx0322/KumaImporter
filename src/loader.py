@@ -38,15 +38,39 @@ def load_targets(file_path: str, default_interval: int) -> List[Dict[str, Any]]:
         kwargs = {"name":name, "host":host, "interval":max(20,interval)}
         for field in ["maxretries","retryInterval","packetSize","reverse","note","repeat_notify_interval","parent"]:
             if field in parsed: kwargs[field]=parsed[field]
-        tags_raw = parsed.get("tags")
-        if tags_raw:
-            if isinstance(tags_raw,str):
-                tags=[t.strip() for t in tags_raw.replace("; ",",").split(",") if t.strip()]
-            elif isinstance(tags_raw,(list,tuple)):
-                tags=[str(t).strip() for t in tags_raw]
-            else: tags=[str(tags_raw)]
-        else: tags=[]
-        kwargs["tags_raw"]=tags
+        # 多列标签支持：收集列名为 tags/tag/标签 及其数字后缀（如 标签1、标签2、tags1）
+        import re
+        def extend_tags_from_value(container: list, val: Any):
+            if val is None:
+                return
+            if isinstance(val, str):
+                s = val.strip()
+                if not s:
+                    return
+                parts = [t.strip() for t in s.replace("; ", ",").split(",") if t.strip()]
+                container.extend(parts)
+                return
+            if isinstance(val, (list, tuple)):
+                container.extend([str(t).strip() for t in val if str(t).strip()])
+                return
+            s = str(val).strip()
+            if s:
+                container.append(s)
+
+        tags: list = []
+        # 先处理标准列 tags
+        extend_tags_from_value(tags, parsed.get("tags"))
+        # 处理其它匹配列
+        for pk, pv in parsed.items():
+            if pk == "tags":
+                continue
+            key_norm = str(pk).strip()
+            if not key_norm:
+                continue
+            if re.match(r'^(tags?|标签)\s*\d*$', key_norm, flags=re.IGNORECASE):
+                extend_tags_from_value(tags, pv)
+
+        kwargs["tags_raw"] = tags
         if "parent" in kwargs: kwargs["parent_raw"]=kwargs.pop("parent")
         rows.append(kwargs)
 
