@@ -1,10 +1,7 @@
-````markdown
 # KumaImporter
 
 KumaImporter是一个用于批量导入和管理Uptime Kuma监控的工具。  
 支持从 Excel/CSV/TXT 文件读取监控配置，一键创建监控、分组和标签，还可以清空所有监控。
-````
----
 
 ## 功能特点
 
@@ -13,8 +10,6 @@ KumaImporter是一个用于批量导入和管理Uptime Kuma监控的工具。
 - 支持 **dry-run** 预演模式，不会实际创建监控  
 - 可一键清空所有监控和标签  
 - 使用 **INI 配置文件** 或命令行参数配置  
-
----
 
 ## 安装
 
