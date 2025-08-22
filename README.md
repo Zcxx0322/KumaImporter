@@ -39,6 +39,11 @@ pip install -r requirements.txt
 
 ## 配置文件
 
+创建配置文件
+```bash
+cp -r config/config.ini.sample config/config.ini
+```
+
 默认配置文件路径：`config/config.ini`
 
 示例 `config.ini`：
